@@ -1,11 +1,11 @@
 import {
-  HomeIcon,
-  HashtagIcon,
   BellIcon,
-  InboxIcon,
   BookmarkIcon,
-  UserIcon,
   EllipsisHorizontalCircleIcon,
+  HashtagIcon,
+  HomeIcon,
+  InboxIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
