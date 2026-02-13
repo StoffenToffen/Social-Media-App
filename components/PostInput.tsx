@@ -24,7 +24,7 @@ const PostInput = () => {
           placeholder="What's happening"
         />
 
-        <div className="flex justify-between">
+        <div className="flex justify-between pt-5">
           <div className="flex gap-1.5">
             <PhotoIcon className="w-5.5 h-5.5 text-[#f4af01]" />
             <ChartBarIcon className="w-5.5 h-5.5 text-[#f4af01]" />
