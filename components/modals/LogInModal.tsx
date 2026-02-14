@@ -2,22 +2,34 @@
 
 import { EyeIcon, EyeSlashIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Modal } from "@mui/material";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { auth } from "@/firebase";
 import { closeLogInModal, openLogInModal } from "@/redux/slices/modalSlice";
 import type { AppDispatch, RootState } from "@/redux/store";
 
 const LogInModal = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const isOpen = useSelector((state: RootState) => state.modals.logInModalOpen);
   const dispatch: AppDispatch = useDispatch();
+
+  const handleLogIn = async () => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const handleGuestLogIn = async () => {
+    await signInWithEmailAndPassword(auth, "guest123000@gmail.com", "12345678");
+  };
 
   return (
     <>
       <button
         type="button"
-        className="w-full h-12 md:w-22 md:h-10 text-md md:text-sm border-2 border-gray-100 rounded-full text-white font-bold hover:bg-white/25 transition"
+        className="w-full h-12 md:w-22 md:h-10 text-md md:text-sm border-2 border-gray-100 rounded-full text-white font-bold hover:bg-white/25 transition cursor-pointer"
         onClick={() => dispatch(openLogInModal())}
       >
         Log In
@@ -45,6 +57,8 @@ const LogInModal = () => {
                 type="email"
                 className="w-full h-13.5 border border-gray-200 outline-none pl-3 rounded focus:border-[#f4af01] transition"
                 placeholder="Email"
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
               />
 
               <div className=" flex items-center w-full h-13.5 border border-gray-200 rounded focus-within:border-[#f4af01] transition pr-3">
@@ -52,6 +66,8 @@ const LogInModal = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   className="w-full h-full outline-none pl-3"
+                  onChange={(e) => setPassword(e.target.value)}
+                  value={password}
                 />
 
                 <button
@@ -66,7 +82,8 @@ const LogInModal = () => {
 
             <button
               type="button"
-              className="bg-[#f4af01] text-white h-12 rounded-full shadow-md mb-5 w-full"
+              className="bg-[#f4af01] text-white h-12 rounded-full shadow-md mb-5 w-full cursor-pointer"
+              onClick={handleLogIn}
             >
               Log In
             </button>
@@ -75,7 +92,8 @@ const LogInModal = () => {
 
             <button
               type="button"
-              className="bg-[#f4af01] text-white h-12 rounded-full shadow-md mb-5 w-full"
+              className="bg-[#f4af01] text-white h-12 rounded-full shadow-md mb-5 w-full cursor-pointer"
+              onClick={handleGuestLogIn}
             >
               Log In as Guest
             </button>

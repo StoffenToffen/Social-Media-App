@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const Widgets = () => {
   return (
-    <div className="p-3 hidden flex-col gap-4 w-100 lg:flex">
+    <div className="p-3 hidden flex-col gap-4 w-100 lg:flex ps-10">
       <div className="flex bg-[#eff3f4] text-[#89959d] h-11 items-center gap-3 rounded-full pl-5">
         <MagnifyingGlassIcon className="w-5 h-5" />
 
