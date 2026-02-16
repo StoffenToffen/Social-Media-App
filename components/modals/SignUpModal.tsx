@@ -85,7 +85,7 @@ const SignUpModal = () => {
         onClose={() => dispatch(closeSignUpModal())}
         className="flex justify-center items-center"
       >
-        <div className="w-full h-full bg-white sm:w-150 sm:h-fit sm:rounded-xl">
+        <div className="w-full h-full bg-white sm:w-150 sm:h-fit sm:rounded-xl outline-none">
           <button
             type="button"
             className="w-7 mt-5 ms-5 cursor-pointer"
