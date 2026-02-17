@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { db } from "@/firebase";
-import { closeCommentModal } from "@/redux/slices/modalSlice";
+import { closeCommentModal, openLogInModal } from "@/redux/slices/modalSlice";
 import type { RootState } from "@/redux/store";
 
 interface PostInputProps {
@@ -35,6 +35,11 @@ const PostInput = ({ insideModal }: PostInputProps) => {
   const dispatch = useDispatch();
 
   const sendPost = async () => {
+    if (!user.username) {
+      dispatch(openLogInModal());
+      return;
+    }
+    
     await addDoc(collection(db, "posts"), {
       text: text,
       name: user.name,

@@ -1,36 +1,76 @@
+"use client";
+
 import {
   ArrowUpTrayIcon,
   ChartBarIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import type { DocumentData, Timestamp } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 import Image from "next/image";
+import Link from "next/link";
 import Moment from "react-moment";
-import { useDispatch } from "react-redux";
-import { openCommentModal, setCommentDetails } from "@/redux/slices/modalSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { db } from "@/firebase";
+import {
+  openCommentModal,
+  openLogInModal,
+  setCommentDetails,
+} from "@/redux/slices/modalSlice";
+import type { RootState } from "@/redux/store";
 
 interface PostProps {
   data: DocumentData;
 }
 
-const Post = ({ data: { name, username, timestamp, text, id } }: PostProps) => {
+const Post = ({
+  data: { name, username, timestamp, text, id, likes, comments },
+}: PostProps) => {
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
+
+  const likePost = async () => {
+    if (!user.username) {
+      dispatch(openLogInModal());
+      return;
+    }
+
+    const postRef = doc(db, "posts", id);
+
+    if (likes.includes(user.uid)) {
+      await updateDoc(postRef, {
+        likes: arrayRemove(user.uid),
+      });
+    } else {
+      await updateDoc(postRef, {
+        likes: arrayUnion(user.uid),
+      });
+    }
+  };
 
   return (
     <div className="border-b border-gray-100">
-      <PostHeader
-        name={name}
-        username={username}
-        timestamp={timestamp}
-        text={text}
-      />
+      <Link href={`/${id}`}>
+        <PostHeader
+          name={name}
+          username={username}
+          timestamp={timestamp}
+          text={text}
+        />
+      </Link>
 
       <div className="ml-16 p-3 flex gap-14">
         <div className="relative">
           <ChatBubbleOvalLeftEllipsisIcon
             className="w-5.5 h-5.5 cursor-pointer hover:text-[#f4af01] transition"
             onClick={() => {
+              if (!user.username) {
+                dispatch(openLogInModal());
+                return;
+              }
+
               dispatch(
                 setCommentDetails({
                   name: name,
@@ -43,13 +83,31 @@ const Post = ({ data: { name, username, timestamp, text, id } }: PostProps) => {
             }}
           />
 
-          <span className="absolute text-xs top-1 -right-3">2</span>
+          {comments.length > 0 && (
+            <span className="absolute text-xs top-1 -right-3">
+              {comments.length}
+            </span>
+          )}
         </div>
 
         <div className="relative">
-          <HeartIcon className="w-5.5 h-5.5 cursor-pointer hover:text-[#f4af01] transition" />
+          {likes.includes(user.uid) ? (
+            <HeartSolidIcon
+              className="w-5.5 h-5.5 cursor-pointer transition text-pink-500"
+              onClick={likePost}
+            />
+          ) : (
+            <HeartIcon
+              className="w-5.5 h-5.5 cursor-pointer hover:text-pink-500 transition"
+              onClick={likePost}
+            />
+          )}
 
-          <span className="absolute text-xs top-1 -right-3">2</span>
+          {likes.length > 0 && (
+            <span className="absolute text-xs top-1 -right-3">
+              {likes.length}
+            </span>
+          )}
         </div>
 
         <div className="relative">
@@ -84,7 +142,7 @@ const PostHeader = ({ username, name, timestamp, text }: PostHeaderProps) => {
 
       <div className="text-[15px] flex flex-col gap-1.5">
         <div className="flex gap-1.5 text-[#707e89]">
-          <span className="font-bold text-[#of1419] whitespace-nowrap overflow-hidden text-ellipsis inline-block max-w-15 min-[400]:max-w-25 min-[500]:max-w-35 sm:max-w-40">
+          <span className="font-bold text-[#0f1419] whitespace-nowrap overflow-hidden text-ellipsis inline-block max-w-15 min-[400]:max-w-25 min-[500]:max-w-35 sm:max-w-40">
             {name}
           </span>
           <span className="whitespace-nowrap overflow-hidden text-ellipsis inline-block max-w-15 min-[400]:max-w-25 min-[500]:max-w-35 sm:max-w-40">
