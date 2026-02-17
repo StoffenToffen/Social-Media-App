@@ -1,7 +1,4 @@
-import { PostHeader } from "@/components/Post";
-import Sidebar from "@/components/Sidebar";
-import SignUpPrompt from "@/components/SignUpPrompt";
-import Widgets from "@/components/Widgets";
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
 import {
   ArrowLeftIcon,
   ArrowUpTrayIcon,
@@ -10,10 +7,37 @@ import {
   EllipsisHorizontalIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
+import { doc, getDoc } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
+import { PostHeader } from "@/components/Post";
+import Sidebar from "@/components/Sidebar";
+import SignUpPrompt from "@/components/SignUpPrompt";
+import Widgets from "@/components/Widgets";
+import { db } from "@/firebase";
 
-const Page = () => {
+const fetchPost = async (id: string) => {
+  const postRef = doc(db, "posts", id);
+  const postSnap = await getDoc(postRef);
+  return postSnap.data();
+};
+
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+interface CommentProps {
+  name: string;
+  username: string;
+  text: string;
+}
+
+const Page = async ({ params }: PageProps) => {
+  const { id } = await params;
+  const post = await fetchPost(id);
+
   return (
     <>
       <div className="text-[#0f1419] min-h-screen max-w-350 my-auto flex justify-center">
@@ -40,10 +64,10 @@ const Page = () => {
 
                 <div className="flex flex-col text-[15px]">
                   <span className="font-bold whitespace-nowrap overflow-hidden text-ellipsis inline-block max-w-15 min-[400]:max-w-25 min-[500]:max-w-35 sm:max-w-40">
-                    Name
+                    {post?.name}
                   </span>
                   <span className="text-[#707e89] whitespace-nowrap overflow-hidden text-ellipsis inline-block max-w-15 min-[400]:max-w-25 min-[500]:max-w-35 sm:max-w-40">
-                    @Username
+                    @{post?.username}
                   </span>
                 </div>
               </div>
@@ -51,11 +75,11 @@ const Page = () => {
               <EllipsisHorizontalIcon className="w-5 h-5" />
             </div>
 
-            <span className="text-[15px]">Post Text</span>
+            <span className="text-[15px]">{post?.text}</span>
           </div>
 
           <div className="border-b border-gray-100 p-3 text-[15px]">
-            <span className="font-bold">0 </span>Likes
+            <span className="font-bold">{post?.likes.length} </span>Likes
           </div>
 
           <div className="border-b border-gray-100 p-3 text-[15px] flex justify-evenly">
@@ -65,7 +89,14 @@ const Page = () => {
             <ArrowUpTrayIcon className="w-5.5 h-5.5 text-[#707e89] cursor-not-allowed" />
           </div>
 
-          <Comment />
+          {post?.comments.map((comment: CommentProps, index: number) => (
+            <Comment
+              key={index}
+              name={comment.name}
+              username={comment.username}
+              text={comment.text}
+            />
+          ))}
         </div>
 
         <Widgets />
@@ -76,10 +107,16 @@ const Page = () => {
   );
 };
 
-export const Comment = () => {
+interface CommentProps {
+  name: string;
+  username: string;
+  text: string;
+}
+
+export const Comment = ({ name, username, text }: CommentProps) => {
   return (
     <div className="border-b border-gray-100">
-      <PostHeader name="alex" username="alex123" text="hleoo world" />
+      <PostHeader name={name} username={username} text={text} />
 
       <div className="flex gap-14 p-3 ms-16">
         <ChatBubbleOvalLeftEllipsisIcon className="w-5.5 h-5.5 text-[#707e89] cursor-not-allowed" />

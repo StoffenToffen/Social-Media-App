@@ -8,10 +8,10 @@ import {
 } from "@heroicons/react/24/outline";
 import type { DocumentData, Timestamp } from "firebase/firestore";
 import Image from "next/image";
+import Link from "next/link";
 import Moment from "react-moment";
 import { useDispatch } from "react-redux";
 import { openCommentModal, setCommentDetails } from "@/redux/slices/modalSlice";
-import Link from "next/link";
 
 interface PostProps {
   data: DocumentData;
