@@ -3,22 +3,27 @@
 import type { DocumentData } from "firebase/firestore";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { db } from "@/firebase";
 import Post from "./Post";
 import PostInput from "./PostInput";
+import { closeLoadingScreen } from "@/redux/slices/loadingSlice";
 
 const PostFeed = () => {
   const [posts, setPosts] = useState<(DocumentData & { id: string })[]>([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setPosts(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+
+      dispatch(closeLoadingScreen());
     });
 
     return unsubscribe;
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="grow max-w-2xl border-x border-gray-100">
